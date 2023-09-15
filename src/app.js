@@ -12,10 +12,6 @@ app.use(compression());
 //db
 require('./dbs/init.mongodb')
 //routes
-app.get('/', (req, res, next) => {
-    return res.status(200).json({
-        message: 'Hello world'
-    })
-})
+app.use('/', require('./routes'))
 
 module.exports = app
