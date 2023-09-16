@@ -8,7 +8,7 @@
     "array-flatten": "^1.1.1",
     "basic-auth": "^2.0.1",
     "bcrypt": "^5.1.1",
-    "body-parser": "^1.18.3",
+    "body-parser": "^1.20.2",
     "bytes": "^3.0.0",
     "compression": "^1.7.4",
     "content-disposition": "^0.5.2",
@@ -34,6 +34,8 @@
     "iconv-lite": "^0.4.23",
     "inherits": "^2.0.3",
     "ipaddr.js": "^1.9.1",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
     "media-typer": "^0.3.0",
     "merge-descriptors": "^1.0.1",
     "methods": "^1.1.2",
@@ -68,5 +70,8 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.17"
+  }
 }
