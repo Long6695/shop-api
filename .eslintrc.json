@@ -1,6 +1,7 @@
 {
     "env": {
-        "node": true
+        "node": true,
+        "es6": true
     },
     "extends": [
         "airbnb-base",
@@ -9,6 +10,8 @@
     ],
     "plugins": ["security", "prettier"],
     "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module",
         "requireConfigFile": false,
         "babelOptions": {
             "babelrc": false,
@@ -23,7 +26,8 @@
         "jest/expect-expect": "off",
         "security/detect-object-injection": "off",
         "no-unused-vars": "off",
-        "max-classes-per-file": "off"
+        "max-classes-per-file": "off",
+        "class-methods-use-this": "off"
     },
     "parser": "@babel/eslint-parser"
 }

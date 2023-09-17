@@ -8,7 +8,7 @@ class Database {
         this.connect()
     }
 
-    static connect(type = 'mongodb') {
+    connect(type = 'mongodb') {
         if (process.env.NODE_ENV === 'develop') {
             mongoose.set('debug', true)
             mongoose.set('debug', {
@@ -21,7 +21,7 @@ class Database {
                     maxPoolSize: 50,
                 })
                 .then((_) => console.log(`Connect to database`))
-                .catch((error) => console.log(`Error Connect`))
+                .catch((error) => console.log(`Error Connect`, error))
         }
     }
 

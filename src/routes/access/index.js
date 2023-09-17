@@ -1,6 +1,6 @@
 const express = require('express')
 const AccessController = require('../../controllers/access.controller')
-const asyncHandler = require('../../ultis')
+const { asyncHandler } = require('../../ultis')
 
 const router = express.Router()
 
