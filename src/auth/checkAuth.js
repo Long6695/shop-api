@@ -1,10 +1,8 @@
-'use strict'
-
 const ApiKeyService = require('../services/apiKey.service')
 
 const HEADER = {
     API_KEY: 'x-api-key',
-    AUTHORIZATION: 'authorization'
+    AUTHORIZATION: 'authorization',
 }
 
 const apiKey = async (req, res, next) => {
@@ -13,7 +11,7 @@ const apiKey = async (req, res, next) => {
         if (!key) {
             return res.status(403).json({
                 code: 403,
-                message: 'Forbidden'
+                message: 'Forbidden',
             })
         }
 
@@ -22,7 +20,7 @@ const apiKey = async (req, res, next) => {
         if (!objKey) {
             return res.status(403).json({
                 code: 403,
-                message: 'API Key Forbidden'
+                message: 'API Key Forbidden',
             })
         }
 
@@ -34,20 +32,20 @@ const apiKey = async (req, res, next) => {
     }
 }
 
-const permission = (permission) => {
+const permission = (value) => {
     return (req, res, next) => {
         if (!req.objKey.permissions) {
             return res.status(403).json({
                 code: 403,
-                message: 'Permissions Denied'
+                message: 'Permissions Denied',
             })
         }
 
-        const validPermissions = req.objKey.permissions.includes(permission)
+        const validPermissions = req.objKey.permissions.includes(value)
         if (!validPermissions) {
             return res.status(403).json({
                 code: 403,
-                message: 'Permissions Denied'
+                message: 'Permissions Denied',
             })
         }
 
@@ -57,5 +55,5 @@ const permission = (permission) => {
 
 module.exports = {
     apiKey,
-    permission
+    permission,
 }
