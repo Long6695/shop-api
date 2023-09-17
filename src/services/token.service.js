@@ -12,7 +12,7 @@ class TokenService {
             })
             return token ? publicKeyString : null
         } catch (e) {
-            return e
+            throw new Error(e)
         }
     }
 }

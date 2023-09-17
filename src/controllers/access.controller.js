@@ -1,13 +1,13 @@
-'use strict'
-const AccessService = require('../services/access.service')
+"use strict";
+const { CreatedResponse } = require("../core/success.response");
+const AccessService = require("../services/access.service");
 class AccessController {
-    static signUp = async (req, res, next) => {
-        try {
-            return res.status(200).json(await AccessService.signUp(req.body))
-        } catch (e) {
-            next(e)
-        }
-    }
+  static signUp = async (req, res, next) => {
+    new CreatedResponse({
+      message: "Register success",
+      data: await AccessService.signUp(req.body),
+    }).send(res);
+  };
 }
 
-module.exports = AccessController
+module.exports = AccessController;
