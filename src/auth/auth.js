@@ -1,16 +1,15 @@
-'use strict'
 const jwt = require('jsonwebtoken')
 
 const createTokenPair = async (payload, publicKey, privateKey) => {
     try {
         const accessToken = await jwt.sign(payload, privateKey, {
             algorithm: 'RS256',
-            expiresIn: '2 days'
+            expiresIn: '2 days',
         })
 
         const refreshToken = await jwt.sign(payload, privateKey, {
             algorithm: 'RS256',
-            expiresIn: '7 days'
+            expiresIn: '7 days',
         })
 
         await jwt.verify(accessToken, publicKey, (err, decode) => {
@@ -31,5 +30,5 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
 }
 
 module.exports = {
-    createTokenPair
+    createTokenPair,
 }
