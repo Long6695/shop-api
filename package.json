@@ -71,7 +71,8 @@
         "format:write": "prettier --write .",
         "lint:check": "eslint .",
         "lint:fix": "eslint --fix .",
-        "postinstall": "husky install"
+        "postinstall": "husky install",
+        "dev": "nodemon server.js"
     },
     "keywords": [],
     "author": "",
@@ -91,7 +92,8 @@
         "eslint-plugin-security": "^1.7.1",
         "husky": "^8.0.3",
         "lint-staged": "^14.0.1",
-        "prettier": "^3.0.3"
+        "prettier": "^3.0.3",
+        "nodemon": "^3.0.1"
     },
     "lint-staged": {
         "*.js": [
