@@ -1,12 +1,4 @@
-const STATUS_CODE = {
-    OK: 200,
-    CREATED: 201,
-}
-
-const REASON_STATUS_CODE = {
-    OK: 'Success',
-    CREATED: 'Created Success',
-}
+const { ReasonPhrases, StatusCodes } = require('../ultis/httpStatusCode')
 
 class SuccessResponse {
     constructor({ message, status, reasonStatusCode, data = {} }) {
@@ -21,16 +13,21 @@ class SuccessResponse {
 }
 
 class OkResponse extends SuccessResponse {
-    constructor({ message, data }) {
-        super({ message, data })
+    constructor({
+        message,
+        status = StatusCodes.OK,
+        reasonStatusCode = ReasonPhrases.OK,
+        data,
+    }) {
+        super({ message, status, reasonStatusCode, data })
     }
 }
 
 class CreatedResponse extends SuccessResponse {
     constructor({
         message,
-        status = STATUS_CODE.CREATED,
-        reasonStatusCode = REASON_STATUS_CODE.CREATED,
+        status = StatusCodes.CREATED,
+        reasonStatusCode = ReasonPhrases.CREATED,
         data,
     }) {
         super({ message, status, reasonStatusCode, data })

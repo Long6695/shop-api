@@ -2,12 +2,14 @@ const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const userModel = require('../models/user.model')
 const TokenService = require('./token.service')
-const { createTokenPair } = require('../auth/auth')
+const { createTokenPair, generateKeyPair } = require('../auth/auth')
 const { getInfoData } = require('../ultis')
 const {
     ConflictErrorResponse,
     UnauthorizedResponse,
+    BadErrorResponse,
 } = require('../core/error.response')
+const { findByEmail } = require('./user.service')
 
 const UserRole = {
     ADMIN: '00000',
@@ -17,6 +19,54 @@ const UserRole = {
 }
 
 class AccessService {
+    static login = async ({ email, password, refreshToken = null }) => {
+        const existUser = await findByEmail({ email })
+        if (!existUser) {
+            throw new BadErrorResponse(`User doesn't exist!`)
+        }
+
+        const match = bcrypt.compare(password, existUser.password)
+
+        if (!match) {
+            throw new UnauthorizedResponse()
+        }
+
+        const { privateKey, publicKey } = generateKeyPair()
+        const publicKeyString = await TokenService.createToken({
+            userId: existUser?._id,
+            publicKey,
+        })
+
+        if (!publicKeyString) {
+            throw new UnauthorizedResponse()
+        }
+
+        const publicKeyObject = crypto.createPublicKey(publicKeyString)
+
+        const tokens = await createTokenPair(
+            {
+                userId: existUser?._id,
+                email,
+            },
+            publicKeyObject,
+            privateKey
+        )
+
+        await TokenService.createToken({
+            userId: existUser?._id,
+            publicKey,
+            refreshToken: tokens.refreshToken,
+        })
+
+        return {
+            user: getInfoData({
+                fields: ['_id', 'email', 'name'],
+                object: existUser,
+            }),
+            tokens,
+        }
+    }
+
     static signUp = async ({ name, email, password }) => {
         const existUser = await userModel.findOne({ email }).lean()
         if (existUser) {
@@ -32,20 +82,7 @@ class AccessService {
         })
 
         if (newUser) {
-            const { privateKey, publicKey } = crypto.generateKeyPairSync(
-                'rsa',
-                {
-                    modulusLength: 4096,
-                    publicKeyEncoding: {
-                        type: 'pkcs1',
-                        format: 'pem',
-                    },
-                    privateKeyEncoding: {
-                        type: 'pkcs1',
-                        format: 'pem',
-                    },
-                }
-            )
+            const { privateKey, publicKey } = generateKeyPair()
             const publicKeyString = await TokenService.createToken({
                 userId: newUser?._id,
                 publicKey,
@@ -73,6 +110,10 @@ class AccessService {
                 tokens,
             }
         }
+    }
+
+    static logout = async (token) => {
+        return TokenService.removeKeyByUserId(token._id)
     }
 }
 
