@@ -3,18 +3,39 @@ const tokenModel = require('../models/token.model')
 const asyncHandler = require('../helpers/asyncHandler')
 
 class TokenService {
-    static createToken = async ({ userId, publicKey, refreshToken }) => {
+    static createToken = async ({
+        userId,
+        publicKey,
+        refreshToken,
+        refreshTokensUsed,
+    }) => {
         try {
-            const publicKeyString = publicKey.toString()
+            let publicKeyString = null
 
-            let data = {
-                publicKey: publicKeyString,
-                refreshTokensUsed: [],
+            if (publicKey) {
+                publicKeyString = publicKey.toString()
+            }
+
+            let data = {}
+            if (publicKeyString) {
+                data = {
+                    ...data,
+                    publicKey: publicKeyString,
+                }
             }
             if (refreshToken) {
                 data = {
                     ...data,
                     refreshToken,
+                }
+            }
+
+            if (refreshTokensUsed) {
+                data = {
+                    ...data,
+                    $addToSet: {
+                        refreshTokensUsed,
+                    },
                 }
             }
 
@@ -41,6 +62,18 @@ class TokenService {
 
     static removeKeyByUserId = async (id) => {
         return tokenModel.deleteOne({ _id: id })
+    }
+
+    static findByRefreshTokenUsed = async ({ refreshToken }) => {
+        return tokenModel.findOne({ refreshTokenUsed: refreshToken }).lean()
+    }
+
+    static findByRefreshToken = async ({ refreshToken }) => {
+        return tokenModel.findOne({ refreshToken })
+    }
+
+    static deleteTokenByUserId = async ({ userId }) => {
+        return tokenModel.findByIdAndDelete({ userId })
     }
 }
 

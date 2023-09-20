@@ -97,8 +97,8 @@
     },
     "lint-staged": {
         "*.js": [
+            "npm run format:write",
             "npm run lint:check",
-            "npm run format:check",
             "git add ."
         ]
     }
