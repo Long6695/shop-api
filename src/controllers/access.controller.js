@@ -22,6 +22,13 @@ class AccessController {
             data: await AccessService.logout(req.token),
         }).send(res)
     }
+
+    static refreshToken = async (req, res, next) => {
+        new OkResponse({
+            message: 'Refresh token success',
+            data: await AccessService.handleRefreshToken(req.body.refreshToken),
+        }).send(res)
+    }
 }
 
 module.exports = AccessController

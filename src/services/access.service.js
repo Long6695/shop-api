@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const userModel = require('../models/user.model')
 const TokenService = require('./token.service')
-const { createTokenPair, generateKeyPair } = require('../auth/auth')
+const { createTokenPair, generateKeyPair, verifyJWT } = require('../auth/auth')
 const { getInfoData } = require('../ultis')
 const {
     ConflictErrorResponse,
@@ -19,6 +19,58 @@ const UserRole = {
 }
 
 class AccessService {
+    static handleRefreshToken = async (refreshToken) => {
+        const foundToken = await TokenService.findByRefreshTokenUsed({
+            refreshToken,
+        })
+
+        if (foundToken) {
+            const publicKeyObject = crypto.createPublicKey(foundToken.publicKey)
+            const { userId, email } = await verifyJWT(
+                refreshToken,
+                publicKeyObject
+            )
+
+            await TokenService.deleteTokenByUserId({ userId })
+
+            throw new BadErrorResponse('Invalid token')
+        }
+
+        const holderToken = await TokenService.findByRefreshToken({
+            refreshToken,
+        })
+        if (!holderToken) throw new UnauthorizedResponse('Please login again')
+        const publicKeyObject = crypto.createPublicKey(holderToken.publicKey)
+        const { userId, email } = await verifyJWT(refreshToken, publicKeyObject)
+
+        const foundUser = await findByEmail({ email })
+        if (!foundUser)
+            throw new UnauthorizedResponse('Please register account')
+        const tokens = await createTokenPair({
+            user: foundUser,
+            oldPublicKey: holderToken.publicKey,
+            rToken: refreshToken,
+        })
+        // await holderToken.updateOne(
+        //     {
+        //         refreshToken: tokens.refreshToken,
+        //     },
+        //     {
+        //         $set: {
+        //             refreshToken: tokens.refreshToken,
+        //         },
+        //         $addToSet: {
+        //             refreshTokensUsed: refreshToken,
+        //         },
+        //     }
+        // )
+
+        return {
+            user: { _id: userId, email },
+            tokens,
+        }
+    }
+
     static login = async ({ email, password, refreshToken = null }) => {
         const existUser = await findByEmail({ email })
         if (!existUser) {
@@ -31,31 +83,8 @@ class AccessService {
             throw new UnauthorizedResponse()
         }
 
-        const { privateKey, publicKey } = generateKeyPair()
-        const publicKeyString = await TokenService.createToken({
-            userId: existUser?._id,
-            publicKey,
-        })
-
-        if (!publicKeyString) {
-            throw new UnauthorizedResponse()
-        }
-
-        const publicKeyObject = crypto.createPublicKey(publicKeyString)
-
-        const tokens = await createTokenPair(
-            {
-                userId: existUser?._id,
-                email,
-            },
-            publicKeyObject,
-            privateKey
-        )
-
-        await TokenService.createToken({
-            userId: existUser?._id,
-            publicKey,
-            refreshToken: tokens.refreshToken,
+        const tokens = await createTokenPair({
+            user: existUser,
         })
 
         return {
@@ -82,26 +111,9 @@ class AccessService {
         })
 
         if (newUser) {
-            const { privateKey, publicKey } = generateKeyPair()
-            const publicKeyString = await TokenService.createToken({
-                userId: newUser?._id,
-                publicKey,
+            const tokens = await createTokenPair({
+                user: newUser,
             })
-
-            if (!publicKeyString) {
-                throw new UnauthorizedResponse()
-            }
-
-            const publicKeyObject = crypto.createPublicKey(publicKeyString)
-
-            const tokens = await createTokenPair(
-                {
-                    userId: newUser?._id,
-                    email,
-                },
-                publicKeyObject,
-                privateKey
-            )
             return {
                 user: getInfoData({
                     fields: ['_id', 'email', 'name'],

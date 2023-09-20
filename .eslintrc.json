@@ -27,7 +27,8 @@
         "security/detect-object-injection": "off",
         "no-unused-vars": "off",
         "max-classes-per-file": "off",
-        "class-methods-use-this": "off"
+        "class-methods-use-this": "off",
+        "no-else-return": "off"
     },
     "parser": "@babel/eslint-parser"
 }
