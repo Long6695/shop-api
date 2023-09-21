@@ -34,6 +34,7 @@
         "iconv-lite": "^0.4.23",
         "inherits": "^2.0.3",
         "ipaddr.js": "^1.9.1",
+        "joi": "^17.10.2",
         "jsonwebtoken": "^9.0.2",
         "lodash": "^4.17.21",
         "media-typer": "^0.3.0",
@@ -92,8 +93,8 @@
         "eslint-plugin-security": "^1.7.1",
         "husky": "^8.0.3",
         "lint-staged": "^14.0.1",
-        "prettier": "^3.0.3",
-        "nodemon": "^3.0.1"
+        "nodemon": "^3.0.1",
+        "prettier": "^3.0.3"
     },
     "lint-staged": {
         "*.js": [

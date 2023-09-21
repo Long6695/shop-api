@@ -1,3 +1,5 @@
+const envVars = require('./config.env')
+
 const develop = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -9,5 +11,4 @@ const production = {
 }
 
 const config = { develop, production }
-const env = process.env.NODE_ENV || 'develop'
-module.exports = config[env]
+module.exports = config[envVars]
