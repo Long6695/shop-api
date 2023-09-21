@@ -11,7 +11,7 @@ const apiKey = async (req, res, next) => {
             })
         }
 
-        const objKey = await ApiKeyService.findById(key)
+        const objKey = await ApiKeyService.findApiKeyById(key)
 
         if (!objKey) {
             return res.status(403).json({

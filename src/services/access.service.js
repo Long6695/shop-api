@@ -2,14 +2,14 @@ const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const userModel = require('../models/user.model')
 const TokenService = require('./token.service')
-const { createTokenPair, generateKeyPair, verifyJWT } = require('../auth/auth')
+const { createTokenPair, verifyJWT } = require('../auth/auth')
 const { getInfoData } = require('../ultis')
 const {
     ConflictErrorResponse,
     UnauthorizedResponse,
     BadErrorResponse,
 } = require('../core/error.response')
-const { findByEmail } = require('./user.service')
+const { findUserByEmail, findUserById } = require('./user.service')
 
 const UserRole = {
     ADMIN: '00000',
@@ -20,7 +20,9 @@ const UserRole = {
 
 class AccessService {
     static handleRefreshToken = async (refreshToken) => {
-        const foundToken = await TokenService.findByRefreshTokenUsed({
+        if (!refreshToken)
+            throw new UnauthorizedResponse('refresh token invalid')
+        const foundToken = await TokenService.findTokenByRefreshTokenUsed({
             refreshToken,
         })
 
@@ -36,34 +38,20 @@ class AccessService {
             throw new BadErrorResponse('Invalid token')
         }
 
-        const holderToken = await TokenService.findByRefreshToken({
+        const holderToken = await TokenService.findTokenByRefreshToken({
             refreshToken,
         })
         if (!holderToken) throw new UnauthorizedResponse('Please login again')
         const publicKeyObject = crypto.createPublicKey(holderToken.publicKey)
         const { userId, email } = await verifyJWT(refreshToken, publicKeyObject)
 
-        const foundUser = await findByEmail({ email })
-        if (!foundUser)
-            throw new UnauthorizedResponse('Please register account')
+        const foundUser = await findUserById({ id: userId })
+        if (!foundUser) throw new UnauthorizedResponse(`User doesn't exist!`)
+
         const tokens = await createTokenPair({
             user: foundUser,
-            oldPublicKey: holderToken.publicKey,
-            rToken: refreshToken,
+            usedRefreshToken: refreshToken,
         })
-        // await holderToken.updateOne(
-        //     {
-        //         refreshToken: tokens.refreshToken,
-        //     },
-        //     {
-        //         $set: {
-        //             refreshToken: tokens.refreshToken,
-        //         },
-        //         $addToSet: {
-        //             refreshTokensUsed: refreshToken,
-        //         },
-        //     }
-        // )
 
         return {
             user: { _id: userId, email },
@@ -72,7 +60,7 @@ class AccessService {
     }
 
     static login = async ({ email, password, refreshToken = null }) => {
-        const existUser = await findByEmail({ email })
+        const existUser = await findUserByEmail({ email })
         if (!existUser) {
             throw new BadErrorResponse(`User doesn't exist!`)
         }
@@ -125,7 +113,7 @@ class AccessService {
     }
 
     static logout = async (token) => {
-        return TokenService.removeKeyByUserId(token._id)
+        return TokenService.removeTokenByUserId(token._id)
     }
 }
 
