@@ -43,9 +43,19 @@ class NotFoundResponse extends ErrorResponse {
     }
 }
 
+class UnprocessableEntityResponse extends ErrorResponse {
+    constructor(
+        message = ReasonPhrases.UNPROCESSABLE_ENTITY,
+        statusCode = StatusCodes.UNPROCESSABLE_ENTITY
+    ) {
+        super(message, statusCode)
+    }
+}
+
 module.exports = {
     ConflictErrorResponse,
     BadErrorResponse,
     UnauthorizedResponse,
     NotFoundResponse,
+    UnprocessableEntityResponse,
 }

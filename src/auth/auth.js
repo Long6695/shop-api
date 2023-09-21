@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
 const asyncHandler = require('../helpers/asyncHandler')
-const { HEADER } = require('../constants/auth')
+const { HEADER } = require('../constants/auth.constant')
 const { UnauthorizedResponse } = require('../core/error.response')
 const TokenService = require('../services/token.service')
 

@@ -1,5 +1,5 @@
-const { CreatedResponse, OkResponse } = require('../core/success.response')
-const AccessService = require('../services/access.service')
+const { CreatedResponse, OkResponse } = require('../../core/success.response')
+const AccessService = require('../../services/access.service')
 
 class AccessController {
     static login = async (req, res, next) => {

@@ -10,13 +10,7 @@ const {
     BadErrorResponse,
 } = require('../core/error.response')
 const { findUserByEmail, findUserById } = require('./user.service')
-
-const UserRole = {
-    ADMIN: '00000',
-    WRITER: '00001',
-    EDITOR: '00002',
-    USER: '00003',
-}
+const { USER_ROLES } = require('../constants/user.constant')
 
 class AccessService {
     static handleRefreshToken = async (refreshToken) => {
@@ -95,7 +89,7 @@ class AccessService {
             name,
             email,
             password: hashPassword,
-            roles: [UserRole.USER],
+            roles: [USER_ROLES.USER],
         })
 
         if (newUser) {
