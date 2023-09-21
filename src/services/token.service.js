@@ -1,6 +1,5 @@
 const { Types } = require('mongoose')
 const tokenModel = require('../models/token.model')
-const asyncHandler = require('../helpers/asyncHandler')
 
 class TokenService {
     static createToken = async ({
@@ -16,18 +15,9 @@ class TokenService {
                 publicKeyString = publicKey.toString()
             }
 
-            let data = {}
-            if (publicKeyString) {
-                data = {
-                    ...data,
-                    publicKey: publicKeyString,
-                }
-            }
-            if (refreshToken) {
-                data = {
-                    ...data,
-                    refreshToken,
-                }
+            let data = {
+                publicKey: publicKeyString,
+                refreshToken,
             }
 
             if (refreshTokensUsed) {
@@ -56,19 +46,19 @@ class TokenService {
         }
     }
 
-    static findByUserId = async ({ userId }) => {
+    static findTokenByUserId = async ({ userId }) => {
         return tokenModel.findOne({ user: new Types.ObjectId(userId) }).lean()
     }
 
-    static removeKeyByUserId = async (id) => {
+    static removeTokenByUserId = async (id) => {
         return tokenModel.deleteOne({ _id: id })
     }
 
-    static findByRefreshTokenUsed = async ({ refreshToken }) => {
+    static findTokenByRefreshTokenUsed = async ({ refreshToken }) => {
         return tokenModel.findOne({ refreshTokenUsed: refreshToken }).lean()
     }
 
-    static findByRefreshToken = async ({ refreshToken }) => {
+    static findTokenByRefreshToken = async ({ refreshToken }) => {
         return tokenModel.findOne({ refreshToken })
     }
 

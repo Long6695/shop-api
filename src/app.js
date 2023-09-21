@@ -21,13 +21,12 @@ app.use('/', require('./routes'))
 app.use((req, res, next) => {
     const error = new Error('Not Found')
     error.status = 404
-    next(error)
+    return next(error)
 })
 
 app.use((error, req, res, next) => {
     const statusCode = error?.status || 500
-    console.log(error)
-    res?.status(statusCode).json({
+    return res?.status(statusCode).json({
         status: 'error',
         statusCode,
         message: error?.message || 'Internal Server Error',
