@@ -75,6 +75,7 @@ const createTokenPair = async ({ user, usedRefreshToken = null }) => {
 
 const authentication = asyncHandler(async (req, res, next) => {
     const userId = req.headers[HEADER.CLIENT_ID]
+    const refreshToken = req.headers[HEADER.REFRESH_TOKEN]
     if (!userId) {
         throw new UnauthorizedResponse()
     }
@@ -83,17 +84,34 @@ const authentication = asyncHandler(async (req, res, next) => {
     if (!token) {
         throw new UnauthorizedResponse()
     }
+    let decodeUser = null
+
+    const publicKeyObject = crypto.createPublicKey(token?.publicKey.toString())
 
     const accessToken = req.headers[HEADER.AUTHORIZATION]
     if (!accessToken) throw new UnauthorizedResponse()
-    const publicKeyObject = crypto.createPublicKey(token?.publicKey.toString())
 
-    const decodeUser = jwt.verify(accessToken, publicKeyObject)
-    if (userId !== decodeUser.userId) {
+    decodeUser = jwt.verify(accessToken, publicKeyObject)
+
+    if (!decodeUser || userId !== decodeUser.userId) {
         throw new UnauthorizedResponse()
     }
+
+    if (refreshToken) {
+        decodeUser = jwt.verify(refreshToken, publicKeyObject)
+        if (userId !== decodeUser.userId) {
+            throw new UnauthorizedResponse()
+        }
+
+        req.refreshToken = refreshToken
+    }
+
     req.token = token
-    next()
+    req.user = {
+        id: decodeUser.userId,
+        email: decodeUser.email,
+    }
+    return next()
 })
 
 module.exports = {

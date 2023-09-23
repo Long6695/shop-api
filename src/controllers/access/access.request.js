@@ -14,7 +14,3 @@ exports.signUpSchema = J.object({
         .required(),
     password: J.string().required(),
 })
-
-exports.refreshTokenSchema = J.object({
-    refreshToken: J.string().required(),
-})

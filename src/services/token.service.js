@@ -47,7 +47,7 @@ class TokenService {
     }
 
     static findTokenByUserId = async ({ userId }) => {
-        return tokenModel.findOne({ user: new Types.ObjectId(userId) }).lean()
+        return tokenModel.findOne({ user: new Types.ObjectId(userId) })
     }
 
     static removeTokenByUserId = async (id) => {

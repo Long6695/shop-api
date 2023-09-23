@@ -13,43 +13,29 @@ const { findUserByEmail, findUserById } = require('./user.service')
 const { USER_ROLES } = require('../constants/user.constant')
 
 class AccessService {
-    static handleRefreshToken = async (refreshToken) => {
-        if (!refreshToken)
+    static handleRefreshToken = async ({ refreshToken, user, tokens }) => {
+        const { id, email } = user
+
+        if (tokens.refreshTokensUsed.includes(refreshToken)) {
+            await TokenService.deleteTokenByUserId({ userId: id })
             throw new UnauthorizedResponse('refresh token invalid')
-        const foundToken = await TokenService.findTokenByRefreshTokenUsed({
-            refreshToken,
-        })
-
-        if (foundToken) {
-            const publicKeyObject = crypto.createPublicKey(foundToken.publicKey)
-            const { userId, email } = await verifyJWT(
-                refreshToken,
-                publicKeyObject
-            )
-
-            await TokenService.deleteTokenByUserId({ userId })
-
-            throw new BadErrorResponse('Invalid token')
         }
 
-        const holderToken = await TokenService.findTokenByRefreshToken({
-            refreshToken,
-        })
-        if (!holderToken) throw new UnauthorizedResponse('Please login again')
-        const publicKeyObject = crypto.createPublicKey(holderToken.publicKey)
-        const { userId, email } = await verifyJWT(refreshToken, publicKeyObject)
+        if (tokens.refreshToken !== refreshToken) {
+            throw new UnauthorizedResponse('refresh token invalid')
+        }
 
-        const foundUser = await findUserById({ id: userId })
+        const foundUser = await findUserById({ id })
         if (!foundUser) throw new UnauthorizedResponse(`User doesn't exist!`)
 
-        const tokens = await createTokenPair({
+        const newTokens = await createTokenPair({
             user: foundUser,
             usedRefreshToken: refreshToken,
         })
 
         return {
-            user: { _id: userId, email },
-            tokens,
+            user: { _id: id, email },
+            tokens: newTokens,
         }
     }
 
