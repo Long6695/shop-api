@@ -3,6 +3,7 @@ const morgan = require('morgan')
 const helmet = require('helmet')
 const compression = require('compression')
 const bodyParser = require('body-parser')
+const { nodeEnv } = require('./configs/config.env')
 
 const app = express()
 
@@ -25,11 +26,18 @@ app.use((req, res, next) => {
 
 app.use((error, req, res, next) => {
     const statusCode = error?.status || 500
-    return res?.status(statusCode).json({
+    let options = {
         status: 'error',
         statusCode,
         message: error?.message || 'Internal Server Error',
-    })
+    }
+    if (nodeEnv !== 'production') {
+        options = {
+            ...options,
+            stack: error.stack,
+        }
+    }
+    return res?.status(statusCode).json(options)
 })
 
 module.exports = app

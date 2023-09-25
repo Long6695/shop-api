@@ -18,4 +18,24 @@ if (error) {
     throw new Error(`Config validation error: ${error.message}`)
 }
 
-module.exports = envVars.NODE_ENV
+const develop = {
+    db: {
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+    },
+    nodeEnv: process.env.NODE_ENV,
+    port: process.env.PORT,
+}
+
+const production = {
+    db: {
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+    },
+    nodeEnv: process.env.NODE_ENV,
+    port: process.env.PORT,
+}
+
+const config = { develop, production }
+
+module.exports = config[envVars.NODE_ENV]

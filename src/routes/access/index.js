@@ -5,7 +5,6 @@ const { authentication } = require('../../auth/auth')
 const {
     loginSchema,
     signUpSchema,
-    refreshTokenSchema,
 } = require('../../controllers/access/access.request')
 const { validate } = require('../../middlewares/validate')
 
@@ -23,11 +22,7 @@ router.post(
 )
 
 router.use(authentication)
-router.post(
-    '/user/refresh-token',
-    validate(refreshTokenSchema),
-    asyncHandler(AccessController.refreshToken)
-)
+router.post('/user/refresh-token', asyncHandler(AccessController.refreshToken))
 router.post('/user/logout', asyncHandler(AccessController.logout))
 
 module.exports = router
