@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose')
+const slugify = require('slugify')
 
 const DOCUMENT_NAME = 'Product'
 const COLLECTION_NAME = 'Products'
@@ -13,6 +14,7 @@ const productSchema = new Schema(
             type: String,
             required: true,
         },
+        productSlug: String,
         productDescription: String,
         productPrice: {
             type: Number,
@@ -32,13 +34,38 @@ const productSchema = new Schema(
             type: Schema.Types.Mixed,
             required: true,
         },
-        productRating: Number,
+        productRating: {
+            type: Number,
+            default: 4.5,
+            min: [1, 'Rating must be above 1.0'],
+            max: [5, 'Rating must be under 5.0'],
+            set: (val) => Math.round(val * 10) / 10,
+        },
+        isDraft: {
+            type: Boolean,
+            default: true,
+            index: true,
+        },
+        isPublish: {
+            type: Boolean,
+            default: false,
+            index: true,
+        },
     },
     {
         timestamps: true,
         collection: COLLECTION_NAME,
     }
 )
+
+productSchema.index({ productName: 'text', productDescription: 'text' })
+
+productSchema.pre('save', function (next) {
+    this.productSlug = slugify(this.productName, {
+        lower: true,
+    })
+    next()
+})
 
 const foodSchema = new Schema(
     {

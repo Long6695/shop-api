@@ -91,14 +91,14 @@ const authentication = asyncHandler(async (req, res, next) => {
     const accessToken = req.headers[HEADER.AUTHORIZATION]
     if (!accessToken) throw new UnauthorizedResponse()
 
-    decodeUser = jwt.verify(accessToken, publicKeyObject)
+    decodeUser = await verifyJWT(accessToken, publicKeyObject)
 
     if (!decodeUser || userId !== decodeUser.userId) {
         throw new UnauthorizedResponse()
     }
 
     if (refreshToken) {
-        decodeUser = jwt.verify(refreshToken, publicKeyObject)
+        decodeUser = await verifyJWT(refreshToken, publicKeyObject)
         if (userId !== decodeUser.userId) {
             throw new UnauthorizedResponse()
         }

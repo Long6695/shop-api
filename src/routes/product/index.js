@@ -9,11 +9,35 @@ const { authentication } = require('../../auth/auth')
 
 const router = express.Router()
 
+router.get(
+    '/product/all/:keySearch',
+    asyncHandler(ProductController.getAllProductsBySearch)
+)
+
+router.get('/product/all', asyncHandler(ProductController.getAllProducts))
+
+router.get('/product/:productId', asyncHandler(ProductController.getProduct))
+
 router.use(authentication)
 
 router.post(
     '/product/create',
-    // validate(createProductSchema),
+    validate(createProductSchema),
     asyncHandler(ProductController.createProduct)
 )
+router.patch(
+    '/product/update/:productId',
+    asyncHandler(ProductController.updateProductByShop)
+)
+
+router.get(
+    '/product/shop/publish',
+    asyncHandler(ProductController.getAllProductsPublishByShop)
+)
+
+router.get(
+    '/product/shop/draft',
+    asyncHandler(ProductController.getAllProductsDraftByShop)
+)
+
 module.exports = router

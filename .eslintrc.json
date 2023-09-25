@@ -28,7 +28,8 @@
         "no-unused-vars": "off",
         "max-classes-per-file": "off",
         "class-methods-use-this": "off",
-        "no-else-return": "off"
+        "no-else-return": "off",
+        "no-param-reassign": "off"
     },
     "parser": "@babel/eslint-parser"
 }
