@@ -1,5 +1,6 @@
 const { BadErrorResponse } = require('../core/error.response')
 const { product, food, drink } = require('../models/product.model')
+const { insertInventory } = require('../models/repositories/inventory.repo')
 const {
     findAllProducts,
     updateProductByShop,
@@ -40,7 +41,17 @@ class Product {
     }
 
     async createProduct(productId) {
-        return product.create({ ...this, _id: productId })
+        const newProduct = product.create({ ...this, _id: productId })
+
+        if (newProduct) {
+            await insertInventory({
+                productId,
+                shopId: this.productShop,
+                stock: this.productQuantity,
+            })
+        }
+
+        return newProduct
     }
 
     async updateProduct(productId, data) {
