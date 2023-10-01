@@ -65,7 +65,7 @@ class DiscountService {
 
         return discountModel.updateOne(
             {
-                shopId: Types.ObjectId(shopId),
+                shopId: new Types.ObjectId(shopId),
             },
             updateNestedObjectParser(objectParams)
         )
@@ -105,7 +105,6 @@ class DiscountService {
     }
 
     static async getAllDiscountByShop({
-        code,
         isActive = true,
         shopId,
         limit,
@@ -114,7 +113,6 @@ class DiscountService {
     }) {
         return findAllDiscountCodeUnselectSpecificData({
             filters: {
-                code,
                 isActive,
                 shopId,
             },
@@ -188,7 +186,7 @@ class DiscountService {
 
     static async deleteDiscountCodeByShop({ shopId, code }) {
         return discountModel.findOneAndDelete({
-            shopId: Types.ObjectId(shopId),
+            shopId: new Types.ObjectId(shopId),
             code,
         })
     }

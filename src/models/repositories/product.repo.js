@@ -17,7 +17,7 @@ const findAllProducts = async ({ limit, page, sort, filters, select }) => {
 
 const findProduct = async ({ productId, unselect }) => {
     return product
-        .findById({ productId: Types.ObjectId(productId) })
+        .findById({ productId: new Types.ObjectId(productId) })
         .populate('productShop', 'name email -_id')
         .select(unselectData(unselect))
         .lean()
@@ -31,12 +31,12 @@ const findAllProductsPublishByShop = async ({
     productIds,
 }) => {
     const filters = {
-        productShop: Types.ObjectId(productShop),
+        productShop: new Types.ObjectId(productShop),
         isPublish: true,
     }
     if (productIds) {
         filters._id = {
-            $in: productIds.map((id) => Types.ObjectId(id)),
+            $in: productIds.map((id) => new Types.ObjectId(id)),
         }
     }
     return product
@@ -52,7 +52,7 @@ const findAllProductsPublishByShop = async ({
 
 const findAllProductsDraftByShop = async ({ productShop, limit, skip }) => {
     return product
-        .find({ productShop: Types.ObjectId(productShop), isDraft: true })
+        .find({ productShop: new Types.ObjectId(productShop), isDraft: true })
         .sort({
             updateAt: -1,
         })
@@ -92,8 +92,8 @@ const findAllProductsBySearch = async ({ limit, skip, keySearch }) => {
 const updateProductByShop = async ({ model, productId, data = {} }) => {
     return model.findByIdAndUpdate(
         {
-            productShop: new Types.ObjectId(data.productShop),
-            _id: new Types.ObjectId(productId),
+            productShop: new Types.ObjectId(data.productShop)(),
+            _id: new Types.ObjectId(productId)(),
         },
         data,
         {

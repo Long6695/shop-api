@@ -43,7 +43,7 @@ const findOneDiscount = async ({ code, isActive = true, shopId }) => {
         .findOne({
             code,
             isActive,
-            shopId: Types.ObjectId(shopId),
+            shopId: new Types.ObjectId(shopId),
         })
         .lean()
 }

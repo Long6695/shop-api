@@ -7,7 +7,7 @@ class DiscountController {
             message: 'Created discount code success',
             data: await DiscountService.createDiscountCode({
                 payload: {
-                    ...req.data,
+                    ...req.body,
                     shopId: req.user.id,
                 },
             }),
@@ -36,11 +36,9 @@ class DiscountController {
     }
 
     static async getAllDiscountByShop(req, res, next) {
-        const { code } = req.body
         new OkResponse({
             message: 'Get all discount codes by shop',
-            data: await DiscountService.getAllDiscountCodesWithProductByUser({
-                code,
+            data: await DiscountService.getAllDiscountByShop({
                 shopId: req.user.id,
             }),
         }).send(res)

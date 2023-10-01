@@ -35,7 +35,6 @@ router.use(authentication)
 
 router.get(
     '/discount/shop/all',
-    validate(discountByShopSchema),
     asyncHandler(DiscountController.getAllDiscountByShop)
 )
 
@@ -46,7 +45,7 @@ router.post(
 )
 
 router.patch(
-    '/discount/shop/update',
+    '/discount/shop/update/:id',
     validate(updateDiscountCodeSchema),
     asyncHandler(DiscountController.updateDiscountCode)
 )

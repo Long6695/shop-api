@@ -21,12 +21,12 @@ router.get('/product/:productId', asyncHandler(ProductController.getProduct))
 router.use(authentication)
 
 router.post(
-    '/product/create',
+    '/product/shop/create',
     validate(createProductSchema),
     asyncHandler(ProductController.createProduct)
 )
 router.patch(
-    '/product/update/:productId',
+    '/product/shop/update/:productId',
     asyncHandler(ProductController.updateProductByShop)
 )
 

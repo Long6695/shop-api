@@ -4,8 +4,8 @@ exports.createDiscountCodeSchema = J.object({
     name: J.string().required(),
     description: J.string().required(),
     type: J.string()
-        .valid(...['food', 'drink'])
-        .optional(),
+        .valid(...['fixed_amount', 'percentage'])
+        .required(),
     value: J.number().required(),
     code: J.string().required(),
     startDate: J.date().required().greater(Date.now()),
@@ -18,7 +18,7 @@ exports.createDiscountCodeSchema = J.object({
     isActive: J.boolean().optional(),
     appliesTo: J.string()
         .valid(...['all', 'special'])
-        .optional(),
+        .required(),
     productIds: J.array().optional(),
 })
 
@@ -26,7 +26,7 @@ exports.updateDiscountCodeSchema = J.object({
     name: J.string().optional(),
     description: J.string().optional(),
     type: J.string()
-        .valid(...['food', 'drink'])
+        .valid(...['fixed_amount', 'percentage'])
         .optional(),
     value: J.number().optional(),
     code: J.string().optional(),
