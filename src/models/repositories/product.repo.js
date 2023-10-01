@@ -17,18 +17,30 @@ const findAllProducts = async ({ limit, page, sort, filters, select }) => {
 
 const findProduct = async ({ productId, unselect }) => {
     return product
-        .findById(productId)
+        .findById({ productId: Types.ObjectId(productId) })
         .populate('productShop', 'name email -_id')
         .select(unselectData(unselect))
         .lean()
         .exec()
 }
 
-const findAllProductsPublishByShop = async ({ limit, skip }) => {
+const findAllProductsPublishByShop = async ({
+    productShop,
+    limit,
+    skip,
+    productIds,
+}) => {
+    const filters = {
+        productShop: Types.ObjectId(productShop),
+        isPublish: true,
+    }
+    if (productIds) {
+        filters._id = {
+            $in: productIds.map((id) => Types.ObjectId(id)),
+        }
+    }
     return product
-        .find({
-            isPublish: true,
-        })
+        .find(filters)
         .sort({
             updateAt: -1,
         })
@@ -38,9 +50,9 @@ const findAllProductsPublishByShop = async ({ limit, skip }) => {
         .exec()
 }
 
-const findAllProductsDraftByShop = async ({ limit, skip }) => {
+const findAllProductsDraftByShop = async ({ productShop, limit, skip }) => {
     return product
-        .find({ isDraft: true })
+        .find({ productShop: Types.ObjectId(productShop), isDraft: true })
         .sort({
             updateAt: -1,
         })

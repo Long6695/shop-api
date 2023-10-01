@@ -67,14 +67,18 @@ class ProductController {
     getAllProductsPublishByShop = async (req, res, next) => {
         new OkResponse({
             message: 'Get list products publish success',
-            data: await ProductService.findAllProductsPublishByShop({}),
+            data: await ProductService.findAllProductsPublishByShop({
+                productShop: req.user.id,
+            }),
         }).send(res)
     }
 
     getAllProductsDraftByShop = async (req, res, next) => {
         new OkResponse({
             message: 'Get list products draft success',
-            data: await ProductService.findAllProductsDraftByShop({}),
+            data: await ProductService.findAllProductsDraftByShop({
+                productShop: req.user.id,
+            }),
         }).send(res)
     }
 }

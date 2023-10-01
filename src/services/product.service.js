@@ -156,11 +156,19 @@ class ProductFactory {
         return new ProductClass(payload).updateProduct(productId)
     }
 
-    static async findAllProductsPublishByShop({ limit = 50, skip = 0 }) {
-        return findAllProductsPublishByShop({ limit, skip })
+    static async findAllProductsPublishByShop({
+        productShop,
+        limit = 50,
+        skip = 0,
+    }) {
+        return findAllProductsPublishByShop({ productShop, limit, skip })
     }
 
-    static async findAllProductsDraftByShop({ limit = 50, skip = 0 }) {
+    static async findAllProductsDraftByShop({
+        productShop,
+        limit = 50,
+        skip = 0,
+    }) {
         return findAllProductsDraftByShop({ limit, skip })
     }
 }
