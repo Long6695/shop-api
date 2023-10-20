@@ -63,6 +63,7 @@ const findAllProductsDraftByShop = async ({ productShop, limit, skip }) => {
 }
 
 const findAllProductsBySearch = async ({ limit, skip, keySearch }) => {
+    // eslint-disable-next-line security/detect-non-literal-regexp
     const regexSearch = new RegExp(keySearch)
 
     return product

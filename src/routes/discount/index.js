@@ -5,7 +5,6 @@ const { authentication } = require('../../auth/auth')
 const {
     createDiscountCodeSchema,
     updateDiscountCodeSchema,
-    discountByShopSchema,
     discountByUserSchema,
     getDiscountAmountByUserSchema,
 } = require('../../controllers/discount/discount.request')
@@ -19,11 +18,7 @@ router.get(
     asyncHandler(DiscountController.getAllProductsFromDiscountCodeByUser)
 )
 
-router.get(
-    '/discount/user/amount',
-    validate(getDiscountAmountByUserSchema),
-    asyncHandler(DiscountController.getDiscountAmount)
-)
+router.use(authentication)
 
 router.post(
     '/discount/user/cancel',
@@ -31,7 +26,11 @@ router.post(
     asyncHandler(DiscountController.cancelDiscountCodeByUser)
 )
 
-router.use(authentication)
+router.get(
+    '/discount/user/amount',
+    validate(getDiscountAmountByUserSchema),
+    asyncHandler(DiscountController.getDiscountAmount)
+)
 
 router.get(
     '/discount/shop/all',
@@ -51,8 +50,7 @@ router.patch(
 )
 
 router.delete(
-    '/discount/shop/delete',
-    validate(discountByShopSchema),
+    '/discount/shop/delete/:id',
     asyncHandler(DiscountController.deleteDiscountCodeByShop)
 )
 

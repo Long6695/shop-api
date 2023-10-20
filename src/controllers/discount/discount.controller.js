@@ -15,11 +15,13 @@ class DiscountController {
     }
 
     static async updateDiscountCode(req, res, next) {
+        const { id } = req.params
         new OkResponse({
             message: 'Updated discount code success',
             data: await DiscountService.updateDiscountCode({
                 shopId: req.user.id,
                 data: req.body,
+                id,
             }),
         }).send(res)
     }
@@ -27,7 +29,7 @@ class DiscountController {
     static async getAllProductsFromDiscountCodeByUser(req, res, next) {
         const { code, shopId } = req.body
         new OkResponse({
-            message: 'Get all discount codes with product success',
+            message: 'Get all discount products success',
             data: await DiscountService.getAllProductsFromDiscountCodeByUser({
                 code,
                 shopId,
@@ -58,11 +60,11 @@ class DiscountController {
     }
 
     static async deleteDiscountCodeByShop(req, res, next) {
-        const { code } = req.body
+        const { id } = req.params
         new OkResponse({
             message: 'Delete discount code success',
             data: await DiscountService.deleteDiscountCodeByShop({
-                code,
+                id,
                 shopId: req.user.id,
             }),
         }).send(res)

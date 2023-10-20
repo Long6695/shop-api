@@ -60,11 +60,12 @@ class DiscountService {
         })
     }
 
-    static async updateDiscountCode({ shopId, data }) {
+    static async updateDiscountCode({ id, shopId, data }) {
         const objectParams = removeUndefinedObject(data)
 
         return discountModel.updateOne(
             {
+                _id: id,
                 shopId: new Types.ObjectId(shopId),
             },
             updateNestedObjectParser(objectParams)
@@ -184,10 +185,10 @@ class DiscountService {
         }
     }
 
-    static async deleteDiscountCodeByShop({ shopId, code }) {
+    static async deleteDiscountCodeByShop({ shopId, id }) {
         return discountModel.findOneAndDelete({
             shopId: new Types.ObjectId(shopId),
-            code,
+            _id: id,
         })
     }
 
