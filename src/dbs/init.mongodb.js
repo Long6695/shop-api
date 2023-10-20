@@ -1,7 +1,7 @@
-'use strict'
 const mongoose = require('mongoose')
-const {user, password} = require('../configs/config.mongodb')
-const connectString = `mongodb+srv://${user}:${password}@cluster0.mtmrkkp.mongodb.net/?retryWrites=true&w=majority`
+const { db } = require('../configs/config.env')
+
+const connectString = `mongodb+srv://${db.user}:${db.password}@cluster0.mtmrkkp.mongodb.net/?retryWrites=true&w=majority`
 
 class Database {
     constructor(type) {
@@ -9,16 +9,19 @@ class Database {
     }
 
     connect(type = 'mongodb') {
-        if (1 === 1) {
+        if (process.env.NODE_ENV === 'develop') {
             mongoose.set('debug', true)
             mongoose.set('debug', {
-                color: true
+                color: true,
             })
         }
         if (type === 'mongodb') {
-            mongoose.connect(connectString, {
-                maxPoolSize: 50
-            }).then(_ => console.log(`Connect to database`)).catch(error => console.log(`Error Connect`))
+            mongoose
+                .connect(connectString, {
+                    maxPoolSize: 50,
+                })
+                .then((_) => console.log(`Connect to database`))
+                .catch((error) => console.log(`Error Connect`, error))
         }
     }
 

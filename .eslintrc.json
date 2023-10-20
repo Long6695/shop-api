@@ -1,0 +1,35 @@
+{
+    "env": {
+        "node": true,
+        "es6": true
+    },
+    "extends": [
+        "airbnb-base",
+        "plugin:security/recommended",
+        "plugin:prettier/recommended"
+    ],
+    "plugins": ["security", "prettier"],
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module",
+        "requireConfigFile": false,
+        "babelOptions": {
+            "babelrc": false,
+            "configFile": false
+        }
+    },
+    "rules": {
+        "no-console": "off",
+        "func-names": "off",
+        "no-underscore-dangle": "off",
+        "consistent-return": "off",
+        "jest/expect-expect": "off",
+        "security/detect-object-injection": "off",
+        "no-unused-vars": "off",
+        "max-classes-per-file": "off",
+        "class-methods-use-this": "off",
+        "no-else-return": "off",
+        "no-param-reassign": "off"
+    },
+    "parser": "@babel/eslint-parser"
+}

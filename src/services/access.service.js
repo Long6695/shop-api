@@ -1,90 +1,99 @@
-'use strict'
-const userModel = require('../models/user.model')
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
+const userModel = require('../models/user.model')
 const TokenService = require('./token.service')
-const {createTokenPair} = require("../auth/auth");
-const {getInfoData} = require("../ultis");
-
-const UserRole = {
-    ADMIN: '00000',
-    WRITER: '00001',
-    EDITOR: '00002',
-    USER: '00003',
-}
+const { createTokenPair, verifyJWT } = require('../auth/auth')
+const { getInfoData } = require('../ultis')
+const {
+    ConflictErrorResponse,
+    UnauthorizedResponse,
+    BadErrorResponse,
+} = require('../core/error.response')
+const { findUserByEmail, findUserById } = require('./user.service')
+const { USER_ROLES } = require('../constants/user.constant')
 
 class AccessService {
-    static signUp = async ({name, email, password}) => {
-        try {
-            const existUser = await userModel.findOne({email}).lean()
-            if (existUser) {
-                return {
-                    code: 409,
-                    message: 'Email has already registered!',
-                    status: 'fail'
-                }
-            }
+    static handleRefreshToken = async ({ refreshToken, user, tokens }) => {
+        const { id, email } = user
 
-            const hashPassword = await bcrypt.hash(password, 10)
-            const newUser = await userModel.create({
-                name,
-                email,
-                password: hashPassword,
-                roles: [UserRole.USER]
+        if (tokens.refreshTokensUsed.includes(refreshToken)) {
+            await TokenService.deleteTokenByUserId({ userId: id })
+            throw new UnauthorizedResponse('refresh token invalid')
+        }
+
+        if (tokens.refreshToken !== refreshToken) {
+            throw new UnauthorizedResponse('refresh token invalid')
+        }
+
+        const foundUser = await findUserById({ id })
+        if (!foundUser) throw new UnauthorizedResponse(`User doesn't exist!`)
+
+        const newTokens = await createTokenPair({
+            user: foundUser,
+            usedRefreshToken: refreshToken,
+        })
+
+        return {
+            user: { _id: id, email },
+            tokens: newTokens,
+        }
+    }
+
+    static login = async ({ email, password, refreshToken = null }) => {
+        const existUser = await findUserByEmail({ email })
+        if (!existUser) {
+            throw new BadErrorResponse(`User doesn't exist!`)
+        }
+
+        const match = bcrypt.compare(password, existUser.password)
+
+        if (!match) {
+            throw new UnauthorizedResponse()
+        }
+
+        const tokens = await createTokenPair({
+            user: existUser,
+        })
+
+        return {
+            user: getInfoData({
+                fields: ['_id', 'email', 'name'],
+                object: existUser,
+            }),
+            tokens,
+        }
+    }
+
+    static signUp = async ({ name, email, password }) => {
+        const existUser = await userModel.findOne({ email }).lean()
+        if (existUser) {
+            throw new ConflictErrorResponse('Email has registered already!')
+        }
+
+        const hashPassword = await bcrypt.hash(password, 10)
+        const newUser = await userModel.create({
+            name,
+            email,
+            password: hashPassword,
+            roles: [USER_ROLES.USER],
+        })
+
+        if (newUser) {
+            const tokens = await createTokenPair({
+                user: newUser,
             })
-
-            if (newUser) {
-                const {privateKey, publicKey} = crypto.generateKeyPairSync('rsa', {
-                    modulusLength: 4096,
-                    publicKeyEncoding: {
-                        type: 'pkcs1',
-                        format: 'pem',
-                    },
-                    privateKeyEncoding: {
-                        type: 'pkcs1',
-                        format: 'pem',
-                    }
-                })
-                const publicKeyString = await TokenService.createToken({userId: newUser?._id, publicKey})
-
-                if (!publicKeyString) {
-                    return {
-                        code: 401,
-                        message: 'token error',
-                        status: 'fail'
-                    }
-                }
-
-                const publicKeyObject = crypto.createPublicKey(publicKeyString)
-
-                const tokens = await createTokenPair({
-                    userId: newUser?._id,
-                    email
-                }, publicKeyObject, privateKey)
-
-                return {
-                    code: 201,
-                    message: 'Success',
-                    status: 'success',
-                    data: {
-                        user: getInfoData({fields: ['_id', 'email', 'name'], object: newUser}),
-                        tokens,
-                    }
-                }
-            }
-
             return {
-                code: 200,
-                data: null
-            }
-
-        } catch (e) {
-            return {
-                code: 500,
-                message: e.message,
-                status: 'error'
+                user: getInfoData({
+                    fields: ['_id', 'email', 'name'],
+                    object: newUser,
+                }),
+                tokens,
             }
         }
+    }
+
+    static logout = async (token) => {
+        return TokenService.removeTokenByUserId(token._id)
     }
 }
 

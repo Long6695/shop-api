@@ -1,53 +1,44 @@
-'use strict'
-
 const ApiKeyService = require('../services/apiKey.service')
+const { HEADER } = require('../constants/auth.constant')
+const asyncHandler = require('../helpers/asyncHandler')
 
-const HEADER = {
-    API_KEY: 'x-api-key',
-    AUTHORIZATION: 'authorization'
-}
-
-const apiKey = async (req, res, next) => {
-    try {
-        const key = req.headers[HEADER.API_KEY]?.toString()
-        if (!key) {
-            return res.status(403).json({
-                code: 403,
-                message: 'Forbidden'
-            })
-        }
-
-        const objKey = await ApiKeyService.findById(key)
-
-        if (!objKey) {
-            return res.status(403).json({
-                code: 403,
-                message: 'API Key Forbidden'
-            })
-        }
-
-        req.objKey = objKey
-
-        return next()
-    } catch (e) {
-        return e
+const apiKey = asyncHandler(async (req, res, next) => {
+    const key = req.headers[HEADER.API_KEY]?.toString()
+    if (!key) {
+        return res.status(403).json({
+            code: 403,
+            message: 'Forbidden',
+        })
     }
-}
 
-const permission = (permission) => {
+    const objKey = await ApiKeyService.findApiKeyById(key)
+
+    if (!objKey) {
+        return res.status(403).json({
+            code: 403,
+            message: 'API Key Forbidden',
+        })
+    }
+
+    req.objKey = objKey
+
+    return next()
+})
+
+const permission = (value) => {
     return (req, res, next) => {
         if (!req.objKey.permissions) {
             return res.status(403).json({
                 code: 403,
-                message: 'Permissions Denied'
+                message: 'Permissions Denied',
             })
         }
 
-        const validPermissions = req.objKey.permissions.includes(permission)
+        const validPermissions = req.objKey.permissions.includes(value)
         if (!validPermissions) {
             return res.status(403).json({
                 code: 403,
-                message: 'Permissions Denied'
+                message: 'Permissions Denied',
             })
         }
 
@@ -57,5 +48,5 @@ const permission = (permission) => {
 
 module.exports = {
     apiKey,
-    permission
+    permission,
 }
